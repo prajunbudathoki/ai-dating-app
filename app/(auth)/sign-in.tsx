@@ -8,7 +8,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+    
 const SignIn = () => {
   const { signIn, isLoaded, setActive } = useSignIn();
   const router = useRouter();
@@ -66,6 +66,7 @@ const SignIn = () => {
             autoCapitalize="none"
             keyboardType="email-address"
             icon="mail-outline"
+            style={styles.input}
           />
           <Input
             placeholder="Password"
@@ -73,6 +74,7 @@ const SignIn = () => {
             onChangeText={setPassword}
             secureTextEntry
             icon="lock-closed-outline"
+            style={styles.input}
           />
 
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -127,6 +129,9 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 24,
+  },
+  input: {
+    color: "#000000",
   },
   errorText: {
     color: "#EF4444",

@@ -69,11 +69,11 @@ const SignUp = () => {
           <ThemedText type="title" style={styles.title}>
             {pendingVerfication ? "Verify Email" : "Create Account"}
           </ThemedText>
-          <ThemedText style={styles.subtitle}>
+          <Text style={styles.subtitle}>
             {pendingVerfication
               ? "We've sent a code to your email"
               : "Join the community and find your match"}
-          </ThemedText>
+          </Text>
         </Animated.View>
 
         <Animated.View
@@ -89,6 +89,7 @@ const SignUp = () => {
                 onChangeText={setCode}
                 keyboardType="number-pad"
                 icon="mail-open-outline"
+                style={styles.input}
               />
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
               <Button
@@ -107,25 +108,23 @@ const SignUp = () => {
           ) : (
             <>
               <Input
-                label="Email Address"
-                placeholder="Enter your email"
+                placeholder="Email Address"
                 value={emailAddress}
                 onChangeText={setEmailAddress}
                 autoCapitalize="none"
                 keyboardType="email-address"
                 icon="mail-outline"
+                style={styles.input}
               />
               <Input
-                label="Password"
-                placeholder="Create a password"
+                placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
                 icon="lock-closed-outline"
+                style={styles.input}
               />
-
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
-
               <Button
                 title="Get Started"
                 onPress={onSignUpPress}
@@ -134,7 +133,9 @@ const SignUp = () => {
               />
 
               <View style={styles.footer}>
-                <ThemedText>Already have an account? </ThemedText>
+                <Text style={{ color: "#6B7280" }}>
+                  Already have an account?{" "}
+                </Text>
                 <Link href="/sign-in" asChild>
                   <Text style={styles.link}>Sign In</Text>
                 </Link>
@@ -160,6 +161,9 @@ const styles = StyleSheet.create({
     marginTop: 60,
     marginBottom: 40,
     alignItems: "center",
+  },
+  input: {
+    color: "#000000",
   },
   title: {
     fontSize: 32,
