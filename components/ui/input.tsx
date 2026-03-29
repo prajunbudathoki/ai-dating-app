@@ -1,5 +1,6 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,6 +8,10 @@ import {
   type TextInputProps,
   View,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 
 export type InputProps = TextInputProps & {
   label?: string;
@@ -14,7 +19,16 @@ export type InputProps = TextInputProps & {
   icon?: keyof typeof Ionicons.glyphMap;
 };
 
-export function Input({ label, error, icon, style, ...rest }: InputProps) {
+export function Input({
+  label,
+  error,
+  icon,
+  style,
+  onFocus,
+  onBlur,
+  ...rest
+}: InputProps) {
+  const [isFocused, setIsFocused] = useState(false);
   const textColor = useThemeColor({}, "text");
   const placeholderColor = useThemeColor(
     { light: "#9BA1A6", dark: "#687076" },
@@ -24,32 +38,50 @@ export function Input({ label, error, icon, style, ...rest }: InputProps) {
     { light: "#E5E7EB", dark: "#374151" },
     "icon",
   );
+  const activeColor = "#FF4B6E";
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      borderColor: withTiming(
+        error ? "#FF4B6E" : isFocused ? activeColor : borderColor,
+        { duration: 200 },
+      ),
+      borderWidth: withTiming(isFocused || error ? 2 : 1, { duration: 200 }),
+      backgroundColor: withTiming(
+        isFocused ? "rgba(255, 255, 255, 1)" : "rgba(255, 255, 255, 0.8)",
+        { duration: 200 },
+      ),
+    };
+  });
 
   return (
     <View style={styles.container}>
       {label && (
         <Text style={[styles.label, { color: textColor }]}>{label}</Text>
       )}
-      <View
-        style={[
-          styles.inputWrapper,
-          { borderColor: error ? "#FF4B6E" : borderColor },
-        ]}
-      >
+      <Animated.View style={[styles.inputWrapper, animatedStyle]}>
         {icon && (
           <Ionicons
             name={icon}
             size={20}
-            color={placeholderColor}
+            color={isFocused ? activeColor : placeholderColor}
             style={styles.icon}
           />
         )}
         <TextInput
           style={[styles.input, { color: textColor }, style]}
           placeholderTextColor={placeholderColor}
+          onFocus={(e) => {
+            setIsFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            onBlur?.(e);
+          }}
           {...rest}
         />
-      </View>
+      </Animated.View>
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
@@ -71,9 +103,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 56,
     borderRadius: 16,
-    borderWidth: 1,
     paddingHorizontal: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
   },
   icon: {
     marginRight: 10,

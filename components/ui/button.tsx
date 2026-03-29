@@ -1,4 +1,5 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
+import * as Haptics from "expo-haptics";
+import React from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -6,6 +7,14 @@ import {
   TouchableOpacity,
   type TouchableOpacityProps,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+
+const AnimatedTouchableOpacity =
+  Animated.createAnimatedComponent(TouchableOpacity);
 
 export type ButtonProps = TouchableOpacityProps & {
   title: string;
@@ -19,11 +28,17 @@ export function Button({
   loading,
   style,
   disabled,
+  onPress,
   ...rest
 }: ButtonProps) {
   const primaryColor = "#FF4B6E";
-  const textColor = useThemeColor({}, "text");
-  const bgColor = useThemeColor({}, "background");
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
 
   const getVariantStyle = () => {
     switch (variant) {
@@ -35,7 +50,7 @@ export function Button({
         };
       case "secondary":
         return {
-          backgroundColor: "#F0F0F0",
+          backgroundColor: "#F3F4F6",
         };
       default:
         return {
@@ -46,20 +61,38 @@ export function Button({
 
   const getTextColor = () => {
     if (variant === "outline") return primaryColor;
-    if (variant === "secondary") return "#11181C";
+    if (variant === "secondary") return "#1F2937";
     return "#FFFFFF";
   };
 
+  const handlePress = (e: any) => {
+    if (loading || disabled) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onPress?.(e);
+  };
+
+  const handlePressIn = () => {
+    scale.value = withSpring(0.96);
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1);
+  };
+
   return (
-    <TouchableOpacity
+    <AnimatedTouchableOpacity
       style={[
         styles.button,
         getVariantStyle(),
+        animatedStyle,
         style,
         (disabled || loading) && styles.disabled,
       ]}
       disabled={disabled || loading}
       activeOpacity={0.8}
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
       {...rest}
     >
       {loading ? (
@@ -67,7 +100,7 @@ export function Button({
       ) : (
         <Text style={[styles.text, { color: getTextColor() }]}>{title}</Text>
       )}
-    </TouchableOpacity>
+    </AnimatedTouchableOpacity>
   );
 }
 
@@ -81,8 +114,8 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowRadius: 12,
+    elevation: 4,
   },
   text: {
     fontSize: 18,
